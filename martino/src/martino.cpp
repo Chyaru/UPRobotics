@@ -162,8 +162,7 @@ int main(int argc, char **argv)
         return 1;
     }
  // you MUST initialize the library !
-	//for(int i = 0; i < 4; i++) set_mode(pi, motors_pins[i], PI_OUTPUT); // setting motors pins
-	set_mode(pi, 2, PI_OUTPUT);
+	for(int i = 0; i < 7; i++) set_mode(pi, motors_pins[i], PI_OUTPUT); // setting motors pins
   rclcpp::init(argc, argv);
 
   std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("martino_server");
