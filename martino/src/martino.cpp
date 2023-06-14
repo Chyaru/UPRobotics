@@ -16,8 +16,8 @@ const int motors_pins[7]={1,2,3,4,5,6,7}; /*
     4 motors
     seen from front
     0 index the right motor
-    1 index the front motor
-    2 index the left motor
+    1 index the left motor
+    2 index the front motor
     3 index the back motor
     4 index the motor that rotates the arm
     5 index muneca
@@ -77,12 +77,12 @@ void moving(int desired_direction){
     if(desired_direction!=current_direction){
         stop_motors();
         set_speed(0, states[desired_direction][0]?starting_velocity_forward:starting_velocity_backward);
-        set_speed(2, states[desired_direction][1]?starting_velocity_forward:starting_velocity_backward);
+        set_speed(1, states[desired_direction][1]?starting_velocity_forward:starting_velocity_backward);
     }else{
         if(states[desired_direction][0]) move_forward(0);
         else move_backwards(0);
-        if(states[desired_direction][1]) move_forward(2);
-        else move_backwards(2);
+        if(states[desired_direction][1]) move_forward(1);
+        else move_backwards(1);
     }
     current_direction = desired_direction;
     return;
