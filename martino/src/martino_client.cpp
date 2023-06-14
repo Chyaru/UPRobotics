@@ -36,7 +36,7 @@ int main(int argc, char **argv)
   if (rclcpp::spin_until_future_complete(node, result) ==
     rclcpp::FutureReturnCode::SUCCESS)
   {
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "speeds: %s", result.get()->speeds);
+     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "speeds:" ); //[%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d]", result.get()->s0, result.get()->s1, result.get()->s2, result.get()->s3, result.get()->s4, result.get()->s5, result.get()->s6, result.get()->s7, result.get()->s8);
   } else {
     RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service direcciones");
   }
