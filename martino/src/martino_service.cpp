@@ -77,8 +77,8 @@ void stop_motors(){
 void moving(int desired_direction){
     if(desired_direction!=current_direction){
         stop_motors();
-        set_speed(0, states[desired_direction][0]?starting_velocity_forward[motor_to_move]:starting_velocity_backward[motor_to_move]);
-        set_speed(1, states[desired_direction][1]?starting_velocity_forward[motor_to_move]:starting_velocity_backward[motor_to_move]);
+        set_speed(0, states[desired_direction][0]?starting_velocity_forward[0]:starting_velocity_backward[0]);
+        set_speed(1, states[desired_direction][1]?starting_velocity_forward[1]:starting_velocity_backward[1]);
     }else{
         if(states[desired_direction][0]) move_forward(0);
         else move_backwards(0);
