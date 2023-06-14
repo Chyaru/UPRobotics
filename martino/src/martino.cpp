@@ -23,10 +23,10 @@ const int motors_pins[7]={1,2,3,4,5,6,7}; /*
     5 index muneca
     6 index clawn
 */
-const int max_speed_forward = 53; // *
-const int max_speed_backwards = 35; // *
+const int max_speed_forward = 51; // *
+const int max_speed_backwards = 27; // *
 const int speed_jump=1; // *
-const int starting_velocity_forward = 46; // *
+const int starting_velocity_forward = 41; // *
 const int starting_velocity_backward = 35; // *
 const int to_standar = 90;
 
