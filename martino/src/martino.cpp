@@ -112,7 +112,7 @@ void garra(int desired_direction){
 
 
 const int standar_speed_actuators=100;
-const int actuators_pins[2][3]={8,9,10,11,12,13};
+const int actuators_pins[2][3]={2,3,4,11,12,13};
 /*
     0 bottom actuator
     1 above actuator
