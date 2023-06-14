@@ -4,7 +4,8 @@
 #include <memory>
 
 
-
+#include <chrono>
+#include <thread>
 #include <unistd.h>
 #include <pigpiod_if2.h>
 #include <algorithm>
@@ -12,7 +13,7 @@
 
 int pi;
 // CHANGE THIS!!!
-const int motors_pins[7]={1,2,3,4,5,6,7}; /*
+const int motors_pins[7]={1,2,3,4,2,6,7}; /*
     4 motors
     seen from front
     0 index the right motor
@@ -26,8 +27,8 @@ const int motors_pins[7]={1,2,3,4,5,6,7}; /*
 const int max_speed_forward = 51; // *
 const int max_speed_backwards = 27; // *
 const int speed_jump=1; // *
-const int starting_velocity_forward = 41; // *
-const int starting_velocity_backward = 35; // *
+const int starting_velocity_forward[7] = {42,42,43,43,43,40,40}; // *
+const int starting_velocity_backward[7] = {35,35,34,34,35,37,37}; // *
 const int to_standar = 90;
 
 int current_speed[7] = {to_standar,to_standar,to_standar,to_standar,to_standar,to_standar,to_standar}; 
@@ -76,8 +77,8 @@ void stop_motors(){
 void moving(int desired_direction){
     if(desired_direction!=current_direction){
         stop_motors();
-        set_speed(0, states[desired_direction][0]?starting_velocity_forward:starting_velocity_backward);
-        set_speed(1, states[desired_direction][1]?starting_velocity_forward:starting_velocity_backward);
+        set_speed(0, states[desired_direction][0]?starting_velocity_forward[0]:starting_velocity_backward[0]);
+        set_speed(1, states[desired_direction][1]?starting_velocity_forward[1]:starting_velocity_backward[1]);
     }else{
         if(states[desired_direction][0]) move_forward(0);
         else move_backwards(0);
@@ -91,29 +92,47 @@ void moving(int desired_direction){
 
 // CHECK THIS, forward or backward !!!
 void flipper(int desired_direction){
-    set_speed((desired_direction/2)+2, ((desired_direction&1) ? starting_velocity_forward: starting_velocity_backward));
+    stop_motors();
+    std::this_thread::sleep_for(std::chrono::milliseconds(90));
+    int motor_to_move = (desired_direction/2)+2;
+    set_speed(motor_to_move, ((desired_direction&1) ? starting_velocity_forward[motor_to_move]: starting_velocity_backward[motor_to_move]));
 }
 
-void garra(int desired_direction){
-    set_speed((desired_direction/2)+4, ((desired_direction&1) ? starting_velocity_forward: starting_velocity_forward));
-}
-
-void print_velocities(std::string &s){
-    s = ""; 
-    for(int i = 0; i < 7; i++){
-        s += "Velocidad: ";
-        if(current_speed[i]!=90) s += "on\n";
-        else s += "off\n";
-    }
-    return;
-}
 // CLAW CODE COMING SOON
+void garra(int desired_direction){
+    stop_motors();
+    std::this_thread::sleep_for(std::chrono::milliseconds(90));
+    int motor_to_move = (desired_direction/2)+4;
+    set_speed(motor_to_move, ((desired_direction&1) ? starting_velocity_forward[motor_to_move]: starting_velocity_forward[motor_to_move]));
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    stop_motors();
+}
+
+
+
+
+const int standar_speed_actuators=100;
+const int actuators_pins[2][3]={8,9,10,11,12,13};
+/*
+    0 bottom actuator
+    1 above actuator
+*/
+void actuators(int desired_direction){
+    int actuator_i = desired_direction/2;
+    set_PWM_dutycycle(pi,actuators_pins[actuator_i][0],standar_speed_actuators);
+    gpio_write(pi, actuators_pins[actuator_i][1],(desired_direction&1));
+    gpio_write(pi, actuators_pins[actuator_i][2],!(desired_direction&1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+    set_PWM_dutycycle(pi,actuators_pins[actuator_i][0],0);
+    gpio_write(pi, actuators_pins[actuator_i][1],0);
+    gpio_write(pi, actuators_pins[actuator_i][2],0);
+}
 
 // this is supossed to be the subscriber function
 /*  SUBSCRIBER WILL RECIBE THESE VALUES
     -1 exit
     0 stop  
-    1 move forward
+    1 move forward         
     2 move backward
     3 turning right
     4 turning left
@@ -121,26 +140,38 @@ void print_velocities(std::string &s){
     6 desend front flipper
     7 elevate back flipper
     8 desend back flipper
-    9 rotate right arm
-    10 rotate left arm
-    11 wrap clawn up
-    12 wrap clawn down
-    13 close clawn
-    14 open clawn
+    9 rotate right arm          0
+    10 rotate left arm          1
+    11 wrap clawn up            2
+    12 wrap clawn down          3 
+    13 close clawn              4
+    14 open clawn               5
+    15 elevate bottom actuator  0
+    16 desend bottom actuator   1
+    17 elevate above actuator   2
+    18 desend bottom actuator   3
 */
-void subscriber_function(int instruction, std::string &velocyties){
+void subscriber_function(int instruction){
+
+
     if(instruction==-1) {
         pigpio_stop(pi);
         return;
     }
+    
+    
+   set_PWM_dutycycle(pi, 2, instruction);
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    stop_motors();
+    
+    return;
     if(instruction==0) stop_motors();
     else if(instruction<=4) moving(instruction);
     else if(instruction<=8) flipper(instruction-5);
     else if(instruction<=14) garra(instruction-9);
-    print_velocities(velocyties);
+    else if(instruction<=18) actuators(instruction-15);
     return;
 }
-
 
 
 void add(const std::shared_ptr<structures::srv::Movement::Request> request,
@@ -148,9 +179,18 @@ void add(const std::shared_ptr<structures::srv::Movement::Request> request,
 {
   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request\ndirection: %ld",
                 request->direction);
-   subscriber_function(request->direction, response->speeds);             
-                
-  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response: [%s]", response->speeds);
+   subscriber_function(request->direction);             
+   response->s0=current_speed[0]; 
+   response->s1=current_speed[1]; 
+   response->s2=current_speed[2]; 
+   response->s3=current_speed[3]; 
+   response->s4=current_speed[4]; 
+   response->s5=current_speed[5]; 
+   response->s6=current_speed[6]; 
+   response->s7=0; 
+   response->s8=0; 
+  RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response: [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d]", response->s0, response->s1, response->s2, response->s3, response->s4, response->s5, response->s6, response->s7, response->s8);
+  
 }
 
 int main(int argc, char **argv)
