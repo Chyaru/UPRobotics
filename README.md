@@ -2,7 +2,7 @@
 ROS UPRobotics
 We're a mexican team which is developing a rescue robot, in order to participate in the Robocup Rescue League. 
 
-# RASPBERRY PI 4 AND ROS2 ACCESS TO PINS ON UBUNTU MATE 22.04
+# RASPBERRY PI 4 AND ROS2 ACCESS TO PINS ON UBUNTU MATE 22.04 C++
 
 - Download pigpio library in ros2_ws/src: http://abyz.me.uk/rpi/pigpio/
 - Make sure your CMakeList contains the target_link_libraries(<name> pigpiod_if2) 
@@ -15,3 +15,6 @@ We're a mexican team which is developing a rescue robot, in order to participate
   pi = pigpio_start(nullptr, nullptr);
   set_mode(pi, PIN_YOU_WANT, PI_OUTPUT);
   set_PWM_dutycycle(pi, PIN_YOU_WANT, speed_to_move);
+
+ # READ XBOX CONTROLLER INPUT ON C++ AND SEND IT TO THE SERVER
+ 
