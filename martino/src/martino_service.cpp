@@ -123,8 +123,8 @@ void garra(int desired_direction){
     10 rotate left arm
     11 wrap clawn up
     12 wrap clawn down
-    13 close clawn
-    14 open clawn
+    13 open clawn
+    14 close clawn 
 */
 void subscriber_function(int instruction){
 

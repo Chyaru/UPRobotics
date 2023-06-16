@@ -33,32 +33,32 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
     */
     int r=-2;
 
-    if(axis[0]==-1.0) r = ;
-    else if(axis[0]==1.0) r = ;
-    else if(axis[1]==-1.0) r = ;
-    else if(axis[1]==1.0) r = ;
-    else if(axis[2]==-1.0) r = ;
-    else if(axis[3]==-1.0) r = ; 
-    else if(axis[3]==1.0) r = ;
-    else if(axis[4]==-1.0) r = ;
-    else if(axis[4]==1.0) r = ;
-    else if(axis[5]==-1.0) r = ;
-    else if(axis[6]==-1.0) r = ;
-    else if(axis[6]==1.0) r = ;
-    else if(axis[7]==-1.0) r = ;
-    else if(axis[7]==1.0) r = ;
-    else if(botons[0]) r = ;
-    else if(botons[1]) r = ;
-    else if(botons[2]) r = ;
-    else if(botons[3]) r = ;
-    else if(botons[4]) r = ;
-    else if(botons[5]) r = ;
-    else if(botons[6]) r = ;
-    else if(botons[7]) r = ;
-    else if(botons[8]) r = ;
-    else if(botons[9]) r = ;
-    else if(botons[10]) r = ;
-    else if(botons[11]) r = ;
+    if(axis[0]==-1.0) r = 10;
+    else if(axis[0]==1.0) r = 9;
+    else if(axis[1]==-1.0) r = 8;
+    else if(axis[1]==1.0) r = 7;
+    else if(axis[2]==-1.0) r = 13;
+    else if(axis[3]==-1.0) r = 18; 
+    else if(axis[3]==1.0) r = 17;
+    else if(axis[4]==-1.0) r = 6;
+    else if(axis[4]==1.0) r = 5;
+    else if(axis[5]==-1.0) r = 14;
+    else if(axis[6]==-1.0) r = 4;
+    else if(axis[6]==1.0) r = 3;
+    else if(axis[7]==-1.0) r = 2;
+    else if(axis[7]==1.0) r = 1;
+    else if(botons[0]) r = 16;
+    else if(botons[1]) r = 0;
+    else if(botons[2]) r = 0;
+    else if(botons[3]) r = 15;
+    else if(botons[4]) r = 12;
+    else if(botons[5]) r = 11;
+    else if(botons[6]) r = 0;
+    else if(botons[7]) r = 0;
+    else if(botons[8]) r = 0;
+    else if(botons[9]) r = 0;
+    else if(botons[10]) r = 0;
+    else if(botons[11]) r = 0;
 
     if(r!=-2){
         std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("reader_client");
