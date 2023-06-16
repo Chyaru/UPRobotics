@@ -16,7 +16,9 @@ I love C++ so I'm trying to code everything in this languaje.
   #include <pigpiod_if2.h>
   
   pi = pigpio_start(nullptr, nullptr);
+ 
   set_mode(pi, PIN_YOU_WANT, PI_OUTPUT);
+ 
   set_PWM_dutycycle(pi, PIN_YOU_WANT, speed_to_move);
 
  
@@ -26,8 +28,11 @@ I love C++ so I'm trying to code everything in this languaje.
   I was doing the client in a single code. But it's better to make a subscriber which calls to the server. In this case I followed these steps.
  
  $ apt-get install ros-<rosdistro>-teleop-twist-joy
+ 
  $ ls /dev/input/ 
+ 
  In order to identify your X (in jsX) use this $ sudo jstest /dev/input/jsX test and identify
+ 
  $ sudo chmod a+rw /dev/input/jsX
  
  You will have to run this every time you want to use the xbox controller
@@ -35,14 +40,18 @@ I love C++ so I'm trying to code everything in this languaje.
  $ ros2 run joy joy_node
  
  try if it's working correctly
+ 
  $ ros2 topic echo joy
+ 
  The values will change when you press the buttons.
  
  
  Let's create a subscriber 
  
  auto joy_sub = node->create_subscription<sensor_msgs::msg::Joy>("/joy",10,joyCallback);
+ 
  /joy is the package mentioned before
+ 
  void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy)
  
  don't forget to run $ ros2 run joy joy_node
