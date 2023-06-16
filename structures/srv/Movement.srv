@@ -1,3 +1,11 @@
 int64 direction
 ---
-string speeds
+int32 s0
+int32 s1
+int32 s2
+int32 s3
+int32 s4
+int32 s5
+int32 s6
+int32 s7
+int32 s8
