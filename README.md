@@ -27,7 +27,7 @@ I love C++ so I'm trying to code everything in this languaje.
  
   I was doing the client in a single code. But it's better to make a subscriber which calls to the server. In this case I followed these steps.
  
- $ apt-get install ros-<rosdistro>-teleop-twist-joy
+ $ apt-get install ros-humble-teleop-twist-joy
  
  $ ls /dev/input/ 
  
