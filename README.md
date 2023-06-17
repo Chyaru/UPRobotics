@@ -30,7 +30,7 @@ I love C++ so I'm trying to code everything in this languaje.
   set_PWM_dutycycle(pi, PIN_YOU_WANT, speed_to_move);
 
  
- ## READ XBOX CONTROLLER INPUT ON C++ AND SEND IT TO THE SERVER C++
+ ## READ XBOX CONTROLLER INPUT ON AND SEND IT TO THE SERVER C++
  
  
   I was doing the client in a single code. But it's better to make a subscriber which calls to the server. In this case I followed these steps.
