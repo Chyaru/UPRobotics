@@ -1,0 +1,6 @@
+cd ros2_ws
+source install/local_setup.bash
+sudo pigpiod
+ros2 run martino server
+
+In teory, this should be enough to initiate the raspberry in order to recieve the movements commands. 
