@@ -1,11 +1,11 @@
-## UPRobotis
+# UPRobotis
 ROS UPRobotics
 We're a mexican team which is developing a rescue robot, in order to participate in the Robocup Rescue League. 
 
 Let me define certain thigs, there are 2 projects, The one in the raspberry pi, and the other one in the Virtual Machine, CMakeList doesn't need to difeer, but there are 2 in the martino's carpet. If you want to test it, then keep the one with the VM, erase VM in the name.
 I love C++ so I'm trying to code everything in this languaje. 
 
-# INSTALLATION
+## INSTALLATION
   Check the correct operating system, ubuntu 22.04 for VM and ubuntu mate 22.04 for raspberry
   Make a VM, configure the network settings to bridge and allow all access. 
   Check that the xbox controller is detected correctly in the USB settings. 
@@ -13,7 +13,7 @@ I love C++ so I'm trying to code everything in this languaje.
   go to this site and follow the steps https://docs.ros.org/en/humble/
  
 
-# RASPBERRY PI 4 AND ROS2 HUMBLE ACCESS TO PINS ON UBUNTU MATE 22.04 C++
+## RASPBERRY PI 4 AND ROS2 HUMBLE ACCESS TO PINS ON UBUNTU MATE 22.04 C++
 
 - Download pigpio library in ros2_ws/src: http://abyz.me.uk/rpi/pigpio/
 - Make sure your CMakeList contains the target_link_libraries(<name> pigpiod_if2) 
@@ -30,7 +30,7 @@ I love C++ so I'm trying to code everything in this languaje.
   set_PWM_dutycycle(pi, PIN_YOU_WANT, speed_to_move);
 
  
- # READ XBOX CONTROLLER INPUT ON C++ AND SEND IT TO THE SERVER C++
+ ## READ XBOX CONTROLLER INPUT ON C++ AND SEND IT TO THE SERVER C++
  
  
   I was doing the client in a single code. But it's better to make a subscriber which calls to the server. In this case I followed these steps.
