@@ -5,6 +5,14 @@ We're a mexican team which is developing a rescue robot, in order to participate
 Let me define certain thigs, there are 2 projects, The one in the raspberry pi, and the other one in the Virtual Machine, CMakeList doesn't need to difeer, but there are 2 in the martino's carpet. If you want to test it, then keep the one with the VM, erase VM in the name.
 I love C++ so I'm trying to code everything in this languaje. 
 
+# INSTALLATION
+  Check the correct operating system, ubuntu 22.04 for VM and ubuntu mate 22.04 for raspberry
+  Make a VM, configure the network settings to bridge and allow all access. 
+  Check that the xbox controller is detected correctly in the USB settings. 
+  
+  go to this site and follow the steps https://docs.ros.org/en/humble/
+ 
+
 # RASPBERRY PI 4 AND ROS2 HUMBLE ACCESS TO PINS ON UBUNTU MATE 22.04 C++
 
 - Download pigpio library in ros2_ws/src: http://abyz.me.uk/rpi/pigpio/
