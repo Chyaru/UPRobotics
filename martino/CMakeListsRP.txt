@@ -28,9 +28,19 @@ ament_target_dependencies(server rclcpp structures)
 add_executable(client src/martino_client.cpp)
 ament_target_dependencies(client rclcpp structures)
 
+
+add_executable(amp_pub src/amperaje_publisher.cpp)
+target_link_libraries(amp_pub pigpiod_if2)
+ament_target_dependencies(amp_pub rclcpp std_msgs)
+
+add_executable(amp_sub src/amperaje_subscriber.cpp)
+ament_target_dependencies(amp_sub rclcpp std_msgs)
+
 install(TARGETS
     server
     client
+    amp_pub
+    amp_sub
   DESTINATION lib/${PROJECT_NAME})
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
