@@ -167,6 +167,7 @@ void subscriber_function(int instruction){
     else if(instruction<=8) flipper(instruction-5);
     else if(instruction<=14) garra(instruction-9);
     else if(instruction<=18) actuators(instruction-15);
+    else if(instruction>100) 
     return;
      
     set_PWM_dutycycle(pi, 2, instruction);

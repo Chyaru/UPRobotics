@@ -1,8 +1,10 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joy.hpp"
 #include "structures/srv/movement.hpp"
-#include<vector>
+#include <vector>
+#include <stdlib.h>
 
+const double death_zone=0.1;
 
 void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
     std::vector<double> axis[8];
@@ -31,34 +33,35 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
         boton 10 es presionar ruedita de abajo
         boton 11 es captura
     */
+
     int r=-2;
 
-    if(axis[0]==-1.0) r = 10;
-    else if(axis[0]==1.0) r = 9;
-    else if(axis[1]==-1.0) r = 8;
-    else if(axis[1]==1.0) r = 7;
-    else if(axis[2]==-1.0) r = 13;
+    if(axis[0]==-1.0) r = 4;
+    else if(axis[0]==1.0) r = 3;
+    else if(axis[1]==-1.0) r = 2;
+    else if(axis[1]==1.0) r = 1;
     else if(axis[3]==-1.0) r = 18; 
     else if(axis[3]==1.0) r = 17;
     else if(axis[4]==-1.0) r = 6;
     else if(axis[4]==1.0) r = 5;
     else if(axis[5]==-1.0) r = 14;
-    else if(axis[6]==-1.0) r = 4;
-    else if(axis[6]==1.0) r = 3;
-    else if(axis[7]==-1.0) r = 2;
-    else if(axis[7]==1.0) r = 1;
+    else if(axis[6]==-1.0) r = 10;
+    else if(axis[6]==1.0) r = 9;
+    else if(axis[7]==-1.0) r = 8;
+    else if(axis[7]==1.0) r = 7;
     else if(botons[0]) r = 16;
     else if(botons[1]) r = 0;
-    else if(botons[2]) r = 0;
+    else if(botons[2]) r = 13;
     else if(botons[3]) r = 15;
     else if(botons[4]) r = 12;
     else if(botons[5]) r = 11;
     else if(botons[6]) r = 0;
     else if(botons[7]) r = 0;
-    else if(botons[8]) r = 0;
+    else if(botons[8]) r = -1;
     else if(botons[9]) r = 0;
     else if(botons[10]) r = 0;
     else if(botons[11]) r = 0;
+
 
     if(r!=-2){
         std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("reader_client");
@@ -66,7 +69,7 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
         node->create_client<structures::srv::Movement>("direcciones");
 
         auto request = std::make_shared<structures::srv::Movement::Request>();
-        request->direction = 1;
+        request->direction = r;
 
 
         auto result = client->async_send_request(request);
@@ -78,6 +81,27 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
             RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service direcciones");
         }
     }   
+    double ac =abs(axis[2]);
+    if(ac>death_zone && r>=1 && r<=4){
+        std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("reader_client");
+        rclcpp::Client<structures::srv::Movement>::SharedPtr client =
+        node->create_client<structures::srv::Movement>("direcciones");
+
+        auto request = std::make_shared<structures::srv::Movement::Request>();
+
+        request->direction = 100 + ;
+
+
+        auto result = client->async_send_request(request);
+        if (rclcpp::spin_until_future_complete(node, result) ==
+            rclcpp::FutureReturnCode::SUCCESS)
+        {
+            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "speeds:"); // %s", result.get()->speeds);
+        } else {
+            RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service direcciones");
+        }
+    }   
+
 
     
     return;
