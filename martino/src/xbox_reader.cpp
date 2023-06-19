@@ -34,7 +34,7 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
         boton 11 es captura
     */
 
-    int r=-2;
+    int r=0;
 
     if(axis[0]==-1.0) r = 4;
     else if(axis[0]==1.0) r = 3;
@@ -62,25 +62,23 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
     else if(botons[10]) r = 0;
     else if(botons[11]) r = 0;
 
+    std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("reader_client");
+    rclcpp::Client<structures::srv::Movement>::SharedPtr client =
+    node->create_client<structures::srv::Movement>("direcciones");
 
-    if(r!=-2){
-        std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("reader_client");
-        rclcpp::Client<structures::srv::Movement>::SharedPtr client =
-        node->create_client<structures::srv::Movement>("direcciones");
-
-        auto request = std::make_shared<structures::srv::Movement::Request>();
-        request->direction = r;
+    auto request = std::make_shared<structures::srv::Movement::Request>();
+    request->direction = r;
 
 
-        auto result = client->async_send_request(request);
-        if (rclcpp::spin_until_future_complete(node, result) ==
-            rclcpp::FutureReturnCode::SUCCESS)
-        {
-            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "speeds:"); // %s", result.get()->speeds);
-        } else {
-            RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service direcciones");
-        }
-    }   
+    auto result = client->async_send_request(request);
+    if (rclcpp::spin_until_future_complete(node, result) ==
+        rclcpp::FutureReturnCode::SUCCESS)
+    {
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "speeds:"); // %s", result.get()->speeds);
+    } else {
+        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service direcciones");
+    }
+    
     double ac =abs(axis[2]);
     if(ac>death_zone && r>=1 && r<=4){
         std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("reader_client");
@@ -89,8 +87,7 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
 
         auto request = std::make_shared<structures::srv::Movement::Request>();
 
-        request->direction = 100 + ;
-
+        request->direction = 100 + ac * 100;
 
         auto result = client->async_send_request(request);
         if (rclcpp::spin_until_future_complete(node, result) ==

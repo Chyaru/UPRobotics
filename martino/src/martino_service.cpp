@@ -13,7 +13,7 @@
 
 int pi;
 // CHANGE THIS!!!
-const int motors_pins[7]={2,3,4,17,27,22,10}; /*
+const int motors_pins[7]={2,17,3,4,23,27,22}; /*
     4 motors
     seen from front
     0 index the right motor
@@ -27,11 +27,11 @@ const int motors_pins[7]={2,3,4,17,27,22,10}; /*
 const int max_speed_forward = 51; // *
 const int max_speed_backwards = 27; // *
 const int speed_jump=1; // *
-const int starting_velocity_forward[7] = {42,42,43,43,42,40,40}; // *
-const int starting_velocity_backward[7] = {35,35,34,34,36,37,37}; // *
+const int starting_velocity_forward[7] = {42,42,44,44,41,40,40}; // *
+const int starting_velocity_backward[7] = {35,35,31,31,36,37,37}; // *
 const int to_standar = 90;
 
-int current_speed[7] = {to_standar,to_standar,to_standar,to_standar,to_standar,to_standar,to_standar}; 
+int current_speed[9] = {to_standar,to_standar,to_standar,to_standar,to_standar,to_standar,to_standar, 0, 0}; 
 
 int current_direction = 0;/*
    0 not moving
@@ -50,7 +50,7 @@ int states[5][2]{
 
 
 void set_speed(int motor_to_move, int speed_to_move){
-   set_PWM_dutycycle(pi, motors_pins[motor_to_move], speed_to_move);
+    set_PWM_dutycycle(pi, motors_pins[motor_to_move], speed_to_move);
     current_speed[motor_to_move]=speed_to_move;
     return;
 }
@@ -71,44 +71,29 @@ void move_backwards(int motor_to_move){
 void stop_motors(){
     current_direction = 0;
     for(int i = 0; i < 7; i++) set_speed(i,to_standar);
+    gpio_write(pi, actuators_pins[actuator_i][0],0);
+    gpio_write(pi, actuators_pins[actuator_i][1],0);
     return;
 }
-
-void moving(int desired_direction){
-    if(desired_direction!=current_direction){
-        stop_motors();
-        set_speed(0, states[desired_direction][0]?starting_velocity_forward[0]:starting_velocity_backward[0]);
-        set_speed(1, states[desired_direction][1]?starting_velocity_forward[1]:starting_velocity_backward[1]);
-    }else{
-        if(states[desired_direction][0]) move_forward(0);
-        else move_backwards(0);
-        if(states[desired_direction][1]) move_forward(1);
-        else move_backwards(1);
-    }
-    current_direction = desired_direction;
-    return;
+void moving(int x){
+    set_PWM_dutycycle(pi, motors_pins[0], (float)(states[current_direction][0] ? 410 + x )/10.0);
+    set_PWM_dutycycle(pi, motors_pins[1], (float)(states[current_direction][1] ? 350 - x )/10.0)
+    current_speed[0] = (states[current_direction][0] ? 410 + x )/10;
+    current_speed[1] = (states[current_direction][1] ? 360 - x )/10;
 }
 
 
 // CHECK THIS, forward or backward !!!
 void flipper(int desired_direction){
-    stop_motors();
-    std::this_thread::sleep_for(std::chrono::milliseconds(40));
     int motor_to_move = (desired_direction/2)+2;
     set_speed(motor_to_move, ((desired_direction&1) ? starting_velocity_forward[motor_to_move]: starting_velocity_backward[motor_to_move]));
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    stop_motors();
 
 }
 
 // CLAW CODE COMING SOON
 void garra(int desired_direction){
-    stop_motors();
-    std::this_thread::sleep_for(std::chrono::milliseconds(40));
     int motor_to_move = (desired_direction/2)+4;
     set_speed(motor_to_move, ((desired_direction&1) ? starting_velocity_forward[motor_to_move]: starting_velocity_forward[motor_to_move]));
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    stop_motors();
 }
 
 
@@ -122,12 +107,8 @@ const int actuators_pins[2][2]={6,13,19,26};
 */
 void actuators(int desired_direction){
     int actuator_i = desired_direction/2;
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "%d %d ", actuators_pins[actuator_i][0], actuators_pins[actuator_i][1]);
-    gpio_write(pi, actuators_pins[actuator_i][1],(desired_direction&1));
-    gpio_write(pi, actuators_pins[actuator_i][2],!(desired_direction&1));
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    gpio_write(pi, actuators_pins[actuator_i][1],0);
-    gpio_write(pi, actuators_pins[actuator_i][2],0);
+    gpio_write(pi, actuators_pins[actuator_i][0],(desired_direction&1));
+    gpio_write(pi, actuators_pins[actuator_i][1],!(desired_direction&1));
 }
 
 // this is supossed to be the subscriber function
@@ -163,11 +144,11 @@ void subscriber_function(int instruction){
     }
     
     if(instruction==0) stop_motors();
-    else if(instruction<=4) moving(instruction);
+    else if(instruction<=4) current_direction=instruction;
     else if(instruction<=8) flipper(instruction-5);
     else if(instruction<=14) garra(instruction-9);
     else if(instruction<=18) actuators(instruction-15);
-    else if(instruction>100) 
+    else if(instruction>100) moving(instruction-100);
     return;
      
     set_PWM_dutycycle(pi, 2, instruction);
@@ -191,8 +172,8 @@ void add(const std::shared_ptr<structures::srv::Movement::Request> request,
    response->s4=current_speed[4]; 
    response->s5=current_speed[5]; 
    response->s6=current_speed[6]; 
-   response->s7=0; 
-   response->s8=0; 
+   response->s7=current_speed[7]; 
+   response->s8=current_speed[8]; 
   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response: [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d]", response->s0, response->s1, response->s2, response->s3, response->s4, response->s5, response->s6, response->s7, response->s8);
   
 }
