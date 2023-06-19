@@ -81,15 +81,12 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
     
     double ac =abs(axis[2]);
     if(ac>death_zone && r>=1 && r<=4){
-        std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("reader_client");
-        rclcpp::Client<structures::srv::Movement>::SharedPtr client =
-        node->create_client<structures::srv::Movement>("direcciones");
 
-        auto request = std::make_shared<structures::srv::Movement::Request>();
+        request = std::make_shared<structures::srv::Movement::Request>();
 
         request->direction = 100 + ac * 100;
 
-        auto result = client->async_send_request(request);
+        result = client->async_send_request(request);
         if (rclcpp::spin_until_future_complete(node, result) ==
             rclcpp::FutureReturnCode::SUCCESS)
         {
