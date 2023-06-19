@@ -42,10 +42,10 @@ int current_direction = 0;/*
 */
 int states[5][2]{
     to_standar, to_standar,
-    1,  1, // move the robot forward
-    0, 0, // move the robot backward
-    1,  0, // turning right
-    0, 1 // turning left
+    1,  0, // move the robot forward
+    0, 1, // move the robot backward
+    1,  1, // turning right
+    0, 0 // turning left
 };
 
 
