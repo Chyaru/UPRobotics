@@ -32,6 +32,7 @@ const int starting_velocity_backward[7] = {35,35,31,31,36,37,37}; // *
 const int to_standar = 90;
 
 int current_speed[9] = {to_standar,to_standar,to_standar,to_standar,to_standar,to_standar,to_standar, 0, 0}; 
+const int actuators_pins[2][2]={6,13,19,26};
 
 int current_direction = 0;/*
    0 not moving
@@ -71,15 +72,14 @@ void move_backwards(int motor_to_move){
 void stop_motors(){
     current_direction = 0;
     for(int i = 0; i < 7; i++) set_speed(i,to_standar);
-    gpio_write(pi, actuators_pins[actuator_i][0],0);
-    gpio_write(pi, actuators_pins[actuator_i][1],0);
+    for(int i = 0; i < 2; i++) for(int j = 0; j < 2; j++){ gpio_write(pi, actuators_pins[i][j],0); current_speed[i]=0;}
     return;
 }
 void moving(int x){
-    set_PWM_dutycycle(pi, motors_pins[0], (float)(states[current_direction][0] ? 410 + x )/10.0);
-    set_PWM_dutycycle(pi, motors_pins[1], (float)(states[current_direction][1] ? 350 - x )/10.0)
-    current_speed[0] = (states[current_direction][0] ? 410 + x )/10;
-    current_speed[1] = (states[current_direction][1] ? 360 - x )/10;
+    set_PWM_dutycycle(pi, motors_pins[0], (float)(states[current_direction][0] ? 410 + x : 350 - x)/10.0);
+    set_PWM_dutycycle(pi, motors_pins[1], (float)(states[current_direction][1] ? 350 - x : 410 + x)/10.0);
+    current_speed[0] = (states[current_direction][0] ? 410 + x : 350 - x)/10;
+    current_speed[1] = (states[current_direction][1] ? 360 - x : 410 + x)/10;
 }
 
 
@@ -100,7 +100,6 @@ void garra(int desired_direction){
 
 
 const int standar_speed_actuators=200;
-const int actuators_pins[2][2]={6,13,19,26};
 /*
     0 bottom actuator
     1 above actuator
@@ -109,6 +108,7 @@ void actuators(int desired_direction){
     int actuator_i = desired_direction/2;
     gpio_write(pi, actuators_pins[actuator_i][0],(desired_direction&1));
     gpio_write(pi, actuators_pins[actuator_i][1],!(desired_direction&1));
+    current_speed[actuator_i]=1;
 }
 
 // this is supossed to be the subscriber function
@@ -149,10 +149,12 @@ void subscriber_function(int instruction){
     else if(instruction<=14) garra(instruction-9);
     else if(instruction<=18) actuators(instruction-15);
     else if(instruction>100) moving(instruction-100);
+    std::this_thread::sleep_for(std::chrono::milliseconds(40));
+    
+    
     return;
      
     set_PWM_dutycycle(pi, 2, instruction);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     stop_motors();
     
     return;
