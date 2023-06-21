@@ -13,7 +13,7 @@
 
 int pi;
 // CHANGE THIS!!!
-const int motors_pins[7]={2,17,3,4,23,27,22}; /*
+const int motors_pins[7]={17,3,4,23,27,22, 24}; /*
     4 motors
     seen from front
     0 index the right motor
@@ -32,7 +32,7 @@ const int starting_velocity_backward[7] = {35,35,31,31,36,37,37}; // *
 const int to_standar = 90;
 
 int current_speed[9] = {to_standar,to_standar,to_standar,to_standar,to_standar,to_standar,to_standar, 0, 0}; 
-const int actuators_pins[2][2]={6,13,19,26};
+const int actuators_pins[2][3]={13,19,26,16,20,21};
 
 int current_direction = 0;/*
    0 not moving
@@ -72,14 +72,14 @@ void move_backwards(int motor_to_move){
 void stop_motors(){
     current_direction = 0;
     for(int i = 0; i < 7; i++) set_speed(i,to_standar);
-    for(int i = 0; i < 2; i++) for(int j = 0; j < 2; j++){ gpio_write(pi, actuators_pins[i][j],0); current_speed[i]=0;}
+    for(int i = 0; i < 2; i++) for(int j = 0; j < 2; j++){ set_PWM_dutycycle(pi, actuators_pins[i][j],0);  current_speed[i]=0;}
     return;
 }
 void moving(int x){
     set_PWM_dutycycle(pi, motors_pins[0], (float)(states[current_direction][0] ? 410 + x : 350 - x)/10.0);
     set_PWM_dutycycle(pi, motors_pins[1], (float)(states[current_direction][1] ? 350 - x : 410 + x)/10.0);
-    current_speed[0] = (states[current_direction][0] ? 410 + x : 350 - x)/10;
-    current_speed[1] = (states[current_direction][1] ? 360 - x : 410 + x)/10;
+    current_speed[0] = (states[current_direction][0] ? 400 + x : 360 - x)/10;
+    current_speed[1] = (states[current_direction][1] ? 360 - x : 400 + x)/10;
 }
 
 
@@ -93,7 +93,7 @@ void flipper(int desired_direction){
 // CLAW CODE COMING SOON
 void garra(int desired_direction){
     int motor_to_move = (desired_direction/2)+4;
-    set_speed(motor_to_move, ((desired_direction&1) ? starting_velocity_forward[motor_to_move]: starting_velocity_forward[motor_to_move]));
+    set_speed(motor_to_move, ((desired_direction&1) ? starting_velocity_forward[motor_to_move]: starting_velocity_backward[motor_to_move]));
 }
 
 
@@ -106,8 +106,9 @@ const int standar_speed_actuators=200;
 */
 void actuators(int desired_direction){
     int actuator_i = desired_direction/2;
-    gpio_write(pi, actuators_pins[actuator_i][0],(desired_direction&1));
-    gpio_write(pi, actuators_pins[actuator_i][1],!(desired_direction&1));
+
+    set_PWM_dutycycle(pi, actuators_pins[actuator_i][0], (desired_direction&1) ? standar_speed_actuators : 0);
+    set_PWM_dutycycle(pi, actuators_pins[actuator_i][1], (desired_direction&1) ? 0: standar_speed_actuators);
     current_speed[actuator_i]=1;
 }
 
@@ -149,13 +150,12 @@ void subscriber_function(int instruction){
     else if(instruction<=14) garra(instruction-9);
     else if(instruction<=18) actuators(instruction-15);
     else if(instruction>100) moving(instruction-100);
-    std::this_thread::sleep_for(std::chrono::milliseconds(40));
+    
     
     
     return;
      
-    set_PWM_dutycycle(pi, 2, instruction);
-    stop_motors();
+     gpio_write(pi, 3,instruction);
     
     return;
 }
@@ -190,7 +190,9 @@ int main(int argc, char **argv)
     }
  // you MUST initialize the library !
 	for(int i = 0; i < 7; i++) set_mode(pi, motors_pins[i], PI_OUTPUT); // setting motors pins
-	for(int i = 0; i < 2; i++) for(int j = 0; j < 2; j++) set_mode(pi, actuators_pins[i][j], PI_OUTPUT);
+	for(int i = 0; i < 2; i++) for(int j = 0; j < 3; j++)  set_mode(pi, actuators_pins[i][j], PI_OUTPUT); 
+	gpio_write(pi, actuators_pins[0][2], 1);
+	gpio_write(pi, actuators_pins[1][2], 1);
   rclcpp::init(argc, argv);
 
   std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("martino_server");
