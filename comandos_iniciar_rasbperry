@@ -4,3 +4,8 @@ sudo pigpiod
 ros2 run martino server
 
 In teory, this should be enough to initiate the raspberry in order to recieve the movements commands. 
+we will add the emergency stop in case of loosing connection.
+open a new terminal
+
+source install/local_setup.bash
+ros2 run martino con_pub
