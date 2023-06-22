@@ -1,0 +1,13 @@
+Normalmente no es necesario checar lo del control. En caso de haber alguna falla hacer:
+sudo chmod a+rw /dev/input/jsX
+Pero deberías poder proceder de la siguiente manera
+ros2 run joy joy_node
+
+En otra terminal
+Empezar a leer cosas del control, para esto, en el raspberry ya debe estar corriendo el martino server
+source install/local_setup.bash
+ros2 run martino joystick_reader
+
+En otra terminal, para checar conectividad
+source install/local_setup.bash
+ros2 run martino con_ser
