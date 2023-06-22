@@ -3,9 +3,9 @@ source install/local_setup.bash
 sudo pigpiod
 ros2 run martino server
 
-In teory, this should be enough to initiate the raspberry in order to recieve the movements commands. 
-we will add the emergency stop in case of loosing connection.
-open a new terminal
+En teoria, esto debería ser suficiente para iniciar los movimientos de martin
+
+En otra terminal, para considerar el parado de emergencia al perder conexión. Antes debe estar corriendo el martino con_ser en la laptop.
 
 source install/local_setup.bash
 ros2 run martino con_pub
