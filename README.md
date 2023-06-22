@@ -1,6 +1,6 @@
 # UPRobotis
 ROS UPRobotics
-We're a mexican team (and a savior) which is developing a rescue robot, in order to participate in the Robocup Rescue League. 
+We're a mexican/salvadorian team which is developing a rescue robot, in order to participate in the Robocup Rescue League. 
 
 Let me define certain thigs, there are 2 projects, The one in the raspberry pi, and the other one in the Virtual Machine, CMakeList doesn't need to difeer, but there are 2 in the martino's carpet. If you want to test it, then keep the one with the VM, erase VM in the name.
 I love C++ so I'm trying to code everything in this languaje. 
