@@ -13,7 +13,7 @@
 
 int pi;
 // CHANGE THIS!!!
-const int motors_pins[7]={17,3,4,23,27,22, 24}; /*
+const int motors_pins[7]={3,4,17,27,22,23,24}; /*
     4 motors
     seen from front
     0 index the right motor
@@ -24,12 +24,9 @@ const int motors_pins[7]={17,3,4,23,27,22, 24}; /*
     5 index muneca
     6 index clawn
 */
-const int max_speed_forward = 51; // *
-const int max_speed_backwards = 27; // *
-const int speed_jump=1; // *
-const int starting_velocity_forward[7] = {42,42,44,44,41,40,40}; // *
-const int starting_velocity_backward[7] = {35,35,31,31,36,37,37}; // *
-const int to_standar = 90;
+const int starting_velocity_forward[7] = {170,170,160,160,188,188,185}; // *
+const int starting_velocity_backward[7] = {215,215,220,220,200,200,203}; // *
+const int to_standar = 100;
 
 int current_speed[9] = {to_standar,to_standar,to_standar,to_standar,to_standar,to_standar,to_standar, 0, 0}; 
 const int actuators_pins[2][3]={13,19,26,16,20,21};
@@ -51,33 +48,31 @@ int states[5][2]{
 
 
 void set_speed(int motor_to_move, int speed_to_move){
-    set_PWM_dutycycle(pi, motors_pins[motor_to_move], speed_to_move);
-    current_speed[motor_to_move]=speed_to_move;
+    int &vel = current_speed[motor_to_move];
+    if(speed_to_move==vel) return;
+    int v = 1;
+    if(speed_to_move<200) v=-1;
+    if(speed_to_move==to_standar || ( vel!=to_standar && ( (speed_to_move>=200 && speed_to_move<vel ) || (speed_to_move<200 && speed_to_move>vel) )  ) ) v=(vel<200 ? 1 : -1); 
+    else if(vel==to_standar) vel=195;
+	    printf("velocidad:[%d]\n", v);
+    while(speed_to_move!=vel && vel>=100){
+        vel += v;
+        if(vel==195) vel = to_standar;
+        set_PWM_dutycycle(pi, motors_pins[motor_to_move], vel);
+	    printf("velocidad:[%d]\n", vel);
+	    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
     return;
 }
-
-
-
-void move_forward(int motor_to_move){
-    set_speed(motor_to_move, std::min(max_speed_forward, current_speed[motor_to_move] + speed_jump) );
-    return;
-}
-
-void move_backwards(int motor_to_move){
-    set_speed(motor_to_move, std::max(max_speed_backwards, current_speed[motor_to_move] - speed_jump) );
-    return;
-}
-
-
 void stop_motors(){
     current_direction = 0;
     for(int i = 0; i < 7; i++) set_speed(i,to_standar);
-    for(int i = 0; i < 2; i++) for(int j = 0; j < 2; j++){ set_PWM_dutycycle(pi, actuators_pins[i][j],0);  current_speed[i]=0;}
+    for(int i = 0; i < 2; i++) for(int j = 0; j < 2; j++){ set_PWM_dutycycle(pi, actuators_pins[i][j],0);  current_speed[i+8]=0;}
     return;
 }
 void moving(int x){
-    set_PWM_dutycycle(pi, motors_pins[0], (float)(states[current_direction][0] ? 410 + x : 350 - x)/10.0);
-    set_PWM_dutycycle(pi, motors_pins[1], (float)(states[current_direction][1] ? 350 - x : 410 + x)/10.0);
+    set_PWM_dutycycle(pi, motors_pins[0], (float)(states[current_direction][0] ? 205 + x : 188 - x)/10.0);
+    set_PWM_dutycycle(pi, motors_pins[1], (float)(states[current_direction][1] ? 188 - x : 205 + x)/10.0);
     current_speed[0] = (states[current_direction][0] ? 400 + x : 360 - x)/10;
     current_speed[1] = (states[current_direction][1] ? 360 - x : 400 + x)/10;
 }
@@ -99,7 +94,7 @@ void garra(int desired_direction){
 
 
 
-const int standar_speed_actuators=200;
+const int standar_speed_actuators=130;
 /*
     0 bottom actuator
     1 above actuator
@@ -107,9 +102,10 @@ const int standar_speed_actuators=200;
 void actuators(int desired_direction){
     int actuator_i = desired_direction/2;
 
+        printf("gorilas %d ...\n", actuator_i);
     set_PWM_dutycycle(pi, actuators_pins[actuator_i][0], (desired_direction&1) ? standar_speed_actuators : 0);
     set_PWM_dutycycle(pi, actuators_pins[actuator_i][1], (desired_direction&1) ? 0: standar_speed_actuators);
-    current_speed[actuator_i]=1;
+    current_speed[8+actuator_i]=1;
 }
 
 // this is supossed to be the subscriber function
@@ -143,7 +139,12 @@ void subscriber_function(int instruction){
         pigpio_stop(pi);
         return;
     }
+   //     set_PWM_dutycycle(pi, 3, instruction);
     
+    
+  //  return;
+   //  set_speed(0, instruction);
+
     if(instruction==0) stop_motors();
     else if(instruction<=4) current_direction=instruction;
     else if(instruction<=8) flipper(instruction-5);
@@ -152,10 +153,6 @@ void subscriber_function(int instruction){
     else if(instruction>100) moving(instruction-100);
     
     
-    
-    return;
-     
-     gpio_write(pi, 3,instruction);
     
     return;
 }
@@ -189,10 +186,10 @@ int main(int argc, char **argv)
         return 1;
     }
  // you MUST initialize the library !
-	for(int i = 0; i < 7; i++) set_mode(pi, motors_pins[i], PI_OUTPUT); // setting motors pins
+	for(int i = 0; i < 7; i++) set_mode(pi, motors_pins[i], PI_OUTPUT);
+	for(int i = 0; i < 7; i++) set_PWM_frequency(pi, motors_pins[i], 5000);  // setting motors pins
 	for(int i = 0; i < 2; i++) for(int j = 0; j < 3; j++)  set_mode(pi, actuators_pins[i][j], PI_OUTPUT); 
 	gpio_write(pi, actuators_pins[0][2], 1);
-	gpio_write(pi, actuators_pins[1][2], 1);
   rclcpp::init(argc, argv);
 
   std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("martino_server");
