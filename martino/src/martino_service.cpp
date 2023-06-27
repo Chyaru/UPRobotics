@@ -40,10 +40,10 @@ int current_direction = 0;/*
 */
 int states[5][2]{
     to_standar, to_standar,
-    1,  0, // move the robot forward
-    0, 1, // move the robot backward
-    1,  1, // turning right
-    0, 0 // turning left
+    1,  1, // move the robot forward
+    0, 0, // move the robot backward
+    1,  0, // turning right
+    0, 1 // turning left
 };
 
 
@@ -54,7 +54,6 @@ void set_speed(int motor_to_move, int speed_to_move){
     if(speed_to_move<200) v=-1;
     if(speed_to_move==to_standar || ( vel!=to_standar && ( (speed_to_move>=200 && speed_to_move<vel ) || (speed_to_move<200 && speed_to_move>vel) )  ) ) v=(vel<200 ? 1 : -1); 
     else if(vel==to_standar) vel=195;
-	    printf("velocidad:[%d]\n", v);
     while(speed_to_move!=vel && vel>=100){
         vel += v;
         if(vel==195) vel = to_standar;
@@ -71,10 +70,8 @@ void stop_motors(){
     return;
 }
 void moving(int x){
-    set_PWM_dutycycle(pi, motors_pins[0], (float)(states[current_direction][0] ? 205 + x : 188 - x)/10.0);
-    set_PWM_dutycycle(pi, motors_pins[1], (float)(states[current_direction][1] ? 188 - x : 205 + x)/10.0);
-    current_speed[0] = (states[current_direction][0] ? 400 + x : 360 - x)/10;
-    current_speed[1] = (states[current_direction][1] ? 360 - x : 400 + x)/10;
+    set_speed(0, (states[current_direction][0] ? 200 + x : 188 - x));
+    set_speed(1, (states[current_direction][1] ? 200 + x : 188 - x));
 }
 
 
@@ -101,8 +98,6 @@ const int standar_speed_actuators=130;
 */
 void actuators(int desired_direction){
     int actuator_i = desired_direction/2;
-
-        printf("gorilas %d ...\n", actuator_i);
     set_PWM_dutycycle(pi, actuators_pins[actuator_i][0], (desired_direction&1) ? standar_speed_actuators : 0);
     set_PWM_dutycycle(pi, actuators_pins[actuator_i][1], (desired_direction&1) ? 0: standar_speed_actuators);
     current_speed[8+actuator_i]=1;
