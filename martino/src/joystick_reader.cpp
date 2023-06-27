@@ -10,7 +10,7 @@
 
 
 
-const double death_zone=20;
+const double death_zone=10;
 
 int last_r=-1;
 
@@ -176,7 +176,7 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
 
     }
 
-    int ac = -(int)(((axis[5]-1.1)/2.0)*10)*10;
+    int ac = -(axis[5]-1.0)*20.0;
 
     if(last_ac != ac && ac>death_zone && r>=1 && r<=4){
 
