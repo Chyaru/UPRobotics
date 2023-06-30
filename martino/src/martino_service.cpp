@@ -48,21 +48,100 @@ int states[5][2]{
 
 
 void set_speed(int motor_to_move, int speed_to_move){
+
     int &vel = current_speed[motor_to_move];
-    if(speed_to_move==vel) return;
-    int v = 1;
-    if(speed_to_move<200) v=-1;
-    if(speed_to_move==to_standar || ( vel!=to_standar && ( (speed_to_move>=200 && speed_to_move<vel ) || (speed_to_move<200 && speed_to_move>vel) )  ) ) v=(vel<200 ? 1 : -1); 
-    else if(vel==to_standar) vel=195;
-    while(speed_to_move!=vel && vel>=100){
-        vel += v;
-        if(vel==195) vel = to_standar;
-        set_PWM_dutycycle(pi, motors_pins[motor_to_move], vel);
-	    printf("velocidad:[%d]\n", vel);
-	    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    if(vel==speed_to_move) return;
+
+    if(vel==to_standar) vel = (speed_to_move>=200 ? 198: 192);
+
+    if(vel>=198 && speed_to_move<vel){ // decrementando derecha
+
+ 	if(speed_to_move==to_standar) speed_to_move = 198;
+
+    	while(speed_to_move!=vel){
+
+	    vel -= std::max((vel-198)/2,1);
+
+	    vel = std::max(vel, speed_to_move);
+
+	    printf("vel: %d\n", vel);
+
+    	    set_PWM_dutycycle(pi, motors_pins[motor_to_move], vel);
+
+	    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+
+    	}
+
+    }else if(vel>=198 && speed_to_move>vel){ // incrementando derecha
+
+    	while(speed_to_move!=vel){
+
+	    vel += std::max((vel-198)/2,1);
+
+	    vel = std::min(vel, speed_to_move);
+
+	    printf("vel: %d\n", vel);
+
+    	    set_PWM_dutycycle(pi, motors_pins[motor_to_move], vel);
+
+	    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+
+    	}
+
+    }else if(speed_to_move<vel && speed_to_move!=to_standar){ // incrementando izquierda
+
+    	while(speed_to_move!=vel){
+
+	    vel -= std::max((192-vel)/2,1);
+
+	    vel = std::max(vel, speed_to_move);
+
+	    printf("vel: %d\n", vel);
+
+    	    set_PWM_dutycycle(pi, motors_pins[motor_to_move], vel);
+
+	    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+
+    	}
+
+    }else{ // decrementando izquierda
+
+    	while(speed_to_move!=vel){
+
+	    if(speed_to_move==to_standar) speed_to_move = 192;
+
+	    vel += std::max((192-vel)/2,1);
+
+	    vel = std::min(vel, speed_to_move);
+
+	    printf("vel: %d\n", vel);
+
+    	    set_PWM_dutycycle(pi, motors_pins[motor_to_move], vel);
+
+	    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+
+    	}
+
     }
+
+    
+
+    if(vel==198 || vel==192){
+
+    	vel = to_standar;
+
+	    printf("vel: %d\n", vel);
+
+    	 set_PWM_dutycycle(pi, motors_pins[motor_to_move], vel);
+
+    }
+
     return;
+
 }
+
+
 void stop_motors(){
     current_direction = 0;
     for(int i = 0; i < 7; i++) set_speed(i,to_standar);
