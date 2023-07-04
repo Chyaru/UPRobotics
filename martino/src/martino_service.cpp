@@ -46,12 +46,7 @@ int states[5][2]{
     0, 1 // turning left
 };
 
-
-void set_speed(int motor_to_move, int speed_to_move){
-
-    int &vel = current_speed[motor_to_move];
-
-    if(vel==speed_to_move) return;
+void speed_dir(int motor_to_move, int speed_to_move, int &vel){
 
     if(vel==to_standar) vel = (speed_to_move>=200 ? 198: 192);
 
@@ -59,23 +54,17 @@ void set_speed(int motor_to_move, int speed_to_move){
 
  	if(speed_to_move==to_standar) speed_to_move = 198;
 
-    	while(speed_to_move!=vel){
+    vel -= std::max((vel-198)/2,1);
 
-	    vel -= std::max((vel-198)/2,1);
+    vel = std::max(vel, speed_to_move);
 
-	    vel = std::max(vel, speed_to_move);
+    printf("vel: %d\n", vel);
 
-	    printf("vel: %d\n", vel);
+        set_PWM_dutycycle(pi, motors_pins[motor_to_move], vel);
 
-    	    set_PWM_dutycycle(pi, motors_pins[motor_to_move], vel);
-
-	    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-
-    	}
+    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 
     }else if(vel>=198 && speed_to_move>vel){ // incrementando derecha
-
-    	while(speed_to_move!=vel){
 
 	    vel += std::max((vel-198)/2,1);
 
@@ -87,11 +76,7 @@ void set_speed(int motor_to_move, int speed_to_move){
 
 	    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 
-    	}
-
     }else if(speed_to_move<vel && speed_to_move!=to_standar){ // incrementando izquierda
-
-    	while(speed_to_move!=vel){
 
 	    vel -= std::max((192-vel)/2,1);
 
@@ -103,11 +88,8 @@ void set_speed(int motor_to_move, int speed_to_move){
 
 	    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 
-    	}
 
     }else{ // decrementando izquierda
-
-    	while(speed_to_move!=vel){
 
 	    if(speed_to_move==to_standar) speed_to_move = 192;
 
@@ -141,16 +123,37 @@ void set_speed(int motor_to_move, int speed_to_move){
 
 }
 
+void set_speed(int motor_to_move, int speed_to_move){
+    int &vel = current_speed[motor_to_move];
+    while(vel!=speed_to_move) {
+        speed_dir(motor_to_move, speed_to_move, vel);
+    }
+    return;
+}
+
 
 void stop_motors(){
     current_direction = 0;
-    for(int i = 0; i < 7; i++) set_speed(i,to_standar);
+    int &vel = current_speed[0];
+    int &vel1 = current_speed[1];
+    while(vel!=to_standar || vel1!=to_standar) {
+        if(vel!=to_standar) speed_dir(to_standar, vel);
+        if(vel1!=to_standar) speed_dir(to_standar, vel1); 
+    }
+    for(int i = 2; i < 7; i++) set_speed(i,to_standar);
     for(int i = 0; i < 2; i++) for(int j = 0; j < 2; j++){ set_PWM_dutycycle(pi, actuators_pins[i][j],0);  current_speed[i+8]=0;}
     return;
 }
 void moving(int x){
-    set_speed(0, (states[current_direction][0] ? 200 + x : 188 - x));
-    set_speed(1, (states[current_direction][1] ? 200 + x : 188 - x));
+    int &vel1 = current_speed[0];
+    int &vel2 = current_speed[1];
+    int desired_speed1 = (states[current_direction][0] ? 200 + x : 188 - x);
+    int desired_speed2 = (states[current_direction][1] ? 200 + x : 188 - x);
+    while(vel1!=desired_speed1 || vel2!=desired_speed2){
+        if(vel1!=desired_speed1) speed_dir(0, desired_speed1, vel1);
+        if(vel2!=desired_speed2) speed_dir(1, desired_speed2, vel2);
+    }
+    return;
 }
 
 
