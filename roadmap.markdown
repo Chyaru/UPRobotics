@@ -9,5 +9,3 @@ Probar los programas de los tutoriales predeterminados
 
   http://docs.ros.org/en/humble/Concepts/Basic.html
   http://docs.ros.org/en/humble/Tutorials.html Solo cli tools y client libraries
-
-  https://app.theconstructsim.com/courses/ros2-basics-in-5-days-humble-c-133/
