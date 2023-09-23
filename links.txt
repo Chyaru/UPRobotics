@@ -1,3 +1,4 @@
 http://docs.ros.org/en/humble/Concepts/Basic/About-Interfaces.html    cosas
 https://www.youtube.com/watch?v=E8XPqDjof4U&t=22s    brazo
 https://jeffzzq.medium.com/ros2-image-pipeline-tutorial-3b18903e7329 Librerias para procesamiento de imágenes.
+https://markus-x-buchholz.medium.com/ interesting guy
