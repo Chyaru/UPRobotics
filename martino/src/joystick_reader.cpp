@@ -5,16 +5,13 @@
 #include "structures/srv/movement.hpp"
 
 #include <vector>
-
 #include <stdlib.h>
-
+#include <algorithm>
+#include <chrono>
+#include <thread>
 
 
 const double death_zone=10;
-
-int last_r=-1;
-
-int last_ac=-1;
 
 
 
@@ -84,23 +81,23 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
 
 
 
-    if(axis[0]<=1.0 && axis[0]>0.5) r = 4;
+    if(axis[1]<=1.0 && axis[1]>0.2) r = std::min(0 + (int)(axis[1] * 100), 99);
 
-    else if(axis[0]>=-1.0 && axis[0]<-0.5) r = 3;
+    else if(axis[1]>=-1.0 && axis[1]<-0.25) r = std::min(100 + (int)(axis[1] * -100), 199);
 
-    else if(axis[1]<=1.0 && axis[1]>0.5) r = 1;
+    else if(axis[0]<=1.0 && axis[0]>0.25) r = std::min(200 + (int)(axis[0] * 100), 299);
 
-    else if(axis[1]>=-1.0 && axis[1]<-0.5) r = 2;
+    else if(axis[0]>=-1.0 && axis[0]<-0.25) r = std::min(300 + (int)(axis[0] * -100), 399);
 
-    else if(axis[3]==-1.0) r = 18; 
+    else if(axis[3]>=-1.0 && axis[3]<=-0.25) r = std::min(400 + (int)(axis[3] * -100), 499);
 
-    else if(axis[3]==1.0) r = 17;
+    else if(axis[3]<=1.0 && axis[3]>=0.25) r = std::min(500 + (int)(axis[3] * 100), 599);
 
-    else if(axis[4]==-1.0) r = 6;
+    else if(axis[4]>=-1.0 && axis[4]<=-0.25) r = std::min(600 + (int)(axis[4] * -100), 699);
 
-    else if(axis[4]==1.0) r = 5;
+    else if(axis[4]<=1.0 && axis[4]>=0.25) r = std::min(700 + (int)(axis[4] * 100), 799);
 
-    else if(axis[2]==-1.0) r = 14;
+ /*   else if(axis[2]==-1.0) r = 14;
 
     else if(axis[6]==-1.0) r = 10;
 
@@ -133,95 +130,34 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
     else if(botons[10]) r = 0;
 
     else if(botons[11]) r = 0;
+*/
+    if(r==0) return;
 
-    
+    auto request = std::make_shared<structures::srv::Movement::Request>();
 
-    
+    request->direction = r;
 
-    if(last_r!=r) {
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending: [%d]", r);
 
-	    
+    auto result = client->async_send_request(request);
 
-		auto request = std::make_shared<structures::srv::Movement::Request>();
+    if (rclcpp::spin_until_future_complete(node, result) ==
 
-	 	request->direction = r;
+    rclcpp::FutureReturnCode::SUCCESS)
 
+    {
 
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "speeds: %d", r); // %s", result.get()->speeds);
 
-	    
+    } else {
 
-	    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending: [%d]", r);
-
-	    
-
-	    
-
-	    auto result = client->async_send_request(request);
-
-	    if (rclcpp::spin_until_future_complete(node, result) ==
-
-		rclcpp::FutureReturnCode::SUCCESS)
-
-	    {
-
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "speeds: %d", r); // %s", result.get()->speeds);
-
-	    } else {
-
-		RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service direcciones");
-
-	    }
-
-	    last_r = r;
+        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service direcciones");
 
     }
 
-    int ac = -(axis[5]-1.0)*20.0;
-
-    if(last_ac != ac && ac>death_zone && r>=1 && r<=4){
-
-
-
-	auto request = std::make_shared<structures::srv::Movement::Request>();
-
- 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending: [%d]", 100 + ac);
-
-        request->direction = 100 + ac;
-
-
-
-        auto result = client->async_send_request(request);
-
-        
-
-        if (rclcpp::spin_until_future_complete(node, result) ==
-
-            rclcpp::FutureReturnCode::SUCCESS)
-
-        {
-
-            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "speeds:"); // %s", result.get()->speeds);
-
-        } else {
-
-            RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service direcciones");
-
-        }
-
-        last_ac = ac;
-
-    }   
-
-
-
-
-
-    
+    std::this_thread::sleep_for(std::chrono::milliseconds((200)));
 
     return;
-
-
-
 }
 
 
