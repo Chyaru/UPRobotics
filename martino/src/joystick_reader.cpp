@@ -83,11 +83,11 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
 
     if(axis[1]<=1.0 && axis[1]>0.2) r = std::min(0 + (int)(axis[1] * 100), 99);
 
-    if(axis[1]>=-1.0 && axis[1]<-0.25) r2 = std::min(100 + (int)(axis[1] * -100), 199);
+    if(axis[1]>=-1.0 && axis[1]<-0.25) r2 = std::min(0 + (int)(axis[1] * -100), 99);
 
-    if(axis[0]<=1.0 && axis[0]>0.25) r = std::min(200 + (int)(axis[0] * 100), 299);
+    if(axis[0]<=1.0 && axis[0]>0.25) r = std::min(100 + (int)(axis[0] * 100), 199);
 
-    if(axis[0]>=-1.0 && axis[0]<-0.25) r2 = std::min(300 + (int)(axis[0] * -100), 399);
+    if(axis[0]>=-1.0 && axis[0]<-0.25) r2 = std::min(100 + (int)(axis[0] * -100), 199);
 
     if(r==0 && r2==0 && axis[3]>=-1.0 && axis[3]<=-0.25) r = 201;
 
