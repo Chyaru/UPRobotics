@@ -77,25 +77,25 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
 
 
 
-    int r=0;
+    int r=0, r2=0;
 
 
 
     if(axis[1]<=1.0 && axis[1]>0.2) r = std::min(0 + (int)(axis[1] * 100), 99);
 
-    else if(axis[1]>=-1.0 && axis[1]<-0.25) r = std::min(100 + (int)(axis[1] * -100), 199);
+    if(axis[1]>=-1.0 && axis[1]<-0.25) r2 = std::min(100 + (int)(axis[1] * -100), 199);
 
-    else if(axis[0]<=1.0 && axis[0]>0.25) r = std::min(200 + (int)(axis[0] * 100), 299);
+    if(axis[0]<=1.0 && axis[0]>0.25) r = std::min(200 + (int)(axis[0] * 100), 299);
 
-    else if(axis[0]>=-1.0 && axis[0]<-0.25) r = std::min(300 + (int)(axis[0] * -100), 399);
+    if(axis[0]>=-1.0 && axis[0]<-0.25) r2 = std::min(300 + (int)(axis[0] * -100), 399);
 
-    else if(axis[3]>=-1.0 && axis[3]<=-0.25) r = std::min(400 + (int)(axis[3] * -100), 499);
+    if(r==0 && r2==0 && axis[3]>=-1.0 && axis[3]<=-0.25) r = 201;
 
-    else if(axis[3]<=1.0 && axis[3]>=0.25) r = std::min(500 + (int)(axis[3] * 100), 599);
+    else if(axis[3]<=1.0 && axis[3]>=0.25) r = 202;
 
-    else if(axis[4]>=-1.0 && axis[4]<=-0.25) r = std::min(600 + (int)(axis[4] * -100), 699);
+    else if(axis[4]>=-1.0 && axis[4]<=-0.25) r = 203;
 
-    else if(axis[4]<=1.0 && axis[4]>=0.25) r = std::min(700 + (int)(axis[4] * 100), 799);
+    else if(axis[4]<=1.0 && axis[4]>=0.25) r = 204;
 
  /*   else if(axis[2]==-1.0) r = 14;
 
@@ -136,8 +136,9 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
     auto request = std::make_shared<structures::srv::Movement::Request>();
 
     request->direction = r;
+    request->direction = r2;
 
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending: [%d]", r);
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending: [%d] [%d]", r, r2);
 
     auto result = client->async_send_request(request);
 
