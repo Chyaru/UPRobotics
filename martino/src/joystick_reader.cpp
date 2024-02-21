@@ -20,7 +20,7 @@ std::shared_ptr<rclcpp::Node> node;
 rclcpp::Client<structures::srv::Movement>::SharedPtr client;
 
 
-
+bool was_cero=false;
 void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
 
     std::vector<double> axis(8);
@@ -131,7 +131,12 @@ void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy){
 
     else if(botons[11]) r = 0;
 */
-    if(r==0) return;
+    if(r==0 && r2==0){ 
+	was_cero=true;
+	return;
+    }else{
+	was_cero=false;
+    }
 
     auto request = std::make_shared<structures::srv::Movement::Request>();
 
