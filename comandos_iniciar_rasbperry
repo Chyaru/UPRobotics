@@ -1,4 +1,4 @@
-cd UPRobotic
+cd ixnaminki_olinki
 source install/local_setup.bash
 sudo pigpiod
 ros2 run martin server
