@@ -1,10 +1,12 @@
-cd ros2_ws
+cd UPRobotic
 source install/local_setup.bash
 sudo pigpiod
-ros2 run martino server
+ros2 run martin server
 
 En teoria, esto debería ser suficiente para iniciar los movimientos de martin
 
+
+** Ignorar esto
 En otra terminal, para considerar el parado de emergencia al perder conexión. Antes debe estar corriendo el martino con_ser en la laptop.
 
 source install/local_setup.bash
