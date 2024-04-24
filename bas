@@ -26,19 +26,19 @@ private:
         goal_msg.order = 10; // Set the Fibonacci sequence order
 
         auto send_goal_options = rclcpp_action::Client<example_interfaces::action::Fibonacci>::SendGoalOptions();
-        send_goal_options.goal_response_callback =
-            [this](std::shared_future<GoalHandle::SharedPtr> future)
-            {
-                auto goal_handle = future.get();
-                if (!goal_handle)
-                {
-                    RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
-                }
-                else
-                {
-                    RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result...");
-                }
-            };
+       send_goal_options.goal_response_callback =
+    [this](const GoalUUID &, std::shared_ptr<const example_interfaces::action::Fibonacci::Goal> goal)
+    {
+        if (!goal)
+        {
+            RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
+        }
+        else
+        {
+            RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result...");
+        }
+    };
+
 
         action_client_->async_send_goal(goal_msg, send_goal_options);
     }
